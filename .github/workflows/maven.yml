@@ -6,10 +6,8 @@ on:
 
 
 jobs:
-  build:
-
+  complie:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -20,3 +18,18 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn package
+  security-check:
+    runs-on: ubuntu-latest
+    needs: complie
+    steps:
+    - uses: actions/checkout@v4
+    - name: install trivy
+      run: |
+        sudo apt-get install wget gnupg
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -y
+        sudo apt-get install trivy -y
+    - name: trivy scan
+      run: trivy fs --scanners vuln,secret,misconfig --format table -o fs-report.json
+  
