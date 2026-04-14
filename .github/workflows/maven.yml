@@ -19,7 +19,7 @@ jobs:
     - name: Build with Maven
       run: mvn package
   security-check:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: complie
     steps:
     - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
     - name: trivy scan
       run: trivy fs . --scanners vuln,secret,misconfig --format table -o fs-report.json
   security-scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: security-check
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
       - name: run gitleaks
         run: gitleaks detect source . -r gitleaks-report.json -f json
   sonar-scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: security-scan
     steps:
       - uses: actions/checkout@v4
