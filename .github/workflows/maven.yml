@@ -32,8 +32,13 @@ jobs:
         sudo apt-get install trivy -y
     - name: trivy scan
       run: trivy fs . --scanners vuln,secret,misconfig --format table -o fs-report.json
-    - name: gitleaks install 
-      run: sudo apt install gitleaks -y
-    - name: run gitleaks
-      run: gitleaks detect source . -r gitleaks-report.json -f json
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: security-check
+    steps:
+      - uses: actions/checkout@v4
+      - name: gitleaks install 
+        run: sudo apt install gitleaks -y
+      - name: run gitleaks
+        run: gitleaks detect source . -r gitleaks-report.json -f json
     
